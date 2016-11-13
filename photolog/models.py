@@ -8,7 +8,7 @@ class Users(db.Model):
     inserted_at = db.Column(db.DateTime, nullable=False)
     updated_at = db.Column(db.DateTime, nullable=False)
 
-    albums = db.relationship('Albums')
+    albums = db.relationship('Albums', backref='users')
 
 
 class Albums(db.Model):
@@ -16,11 +16,11 @@ class Albums(db.Model):
     name = db.Column(db.Text)
     description = db.Column(db.Text)
     status = db.Column(db.Integer, default=0)
-    user_id = db.Column(db.Integer, db.ForeignKey(users.id), index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
     inserted_at = db.Column(db.DateTime, nullable=False)
     updated_at = db.Column(db.DateTime, nullable=False)
 
-    photos = db.relationship('Photos')
+    photos = db.relationship('Photos', backref='albums')
 
 
 class Photos(db.Model):
@@ -28,6 +28,6 @@ class Photos(db.Model):
     name = db.Column(db.Text)
     file_name = db.Column(db.Text)
     description = db.Column(db.Text)
-    album_id = db.Column(db.Integer, db.ForeignKey(albums.id), index=True)
+    album_id = db.Column(db.Integer, db.ForeignKey('albums.id'), index=True)
     inserted_at = db.Column(db.DateTime, nullable=False)
     updated_at = db.Column(db.DateTime, nullable=False)
