@@ -1,0 +1,4 @@
+import os
+
+WTF_CSRF_ENABLED = True
+SQLALCHEMY_DATABASE_URI = os.environ['PHOTOLOG_DB_URI']
