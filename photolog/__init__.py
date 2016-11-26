@@ -7,4 +7,4 @@ photolog.config.from_object('photolog.config')
 db = SQLAlchemy()
 db.init_app(photolog)
 
-from photolog import models
+from photolog import models, views
