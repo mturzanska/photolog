@@ -43,9 +43,13 @@ class AuthTest(t.TestCase):
 class SessionViewTest(t.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.model_helper = ModelHelper()
-        cls.login_url = url_for('login')
-        cls.logout_url = url_for('logout')
+        app.config['WTF_CSRF_ENABLED'] = False
+        app.config['TESTING'] = True
+        cls.model_helper = ModelHelper(db.session)
+        with app.app_context():
+            cls.login_url = url_for('login')
+            cls.logout_url = url_for('logout')
+            cls.admin_url = url_for('futon')
 
     def setUp(self):
         db.create_all()
@@ -60,41 +64,41 @@ class SessionViewTest(t.TestCase):
     def test_login_success_redirects(self):
         rsp = self.c.post(self.login_url,
                           data={'username': self.username,
-                                'password': self.password})
+                                'passwo': self.password})
         headers = rsp.headers
 
-        self.assertEqual(rsp.status_code, 301)
-        self.assertEqual(headers['location'], '/gory')
+        self.assertEqual(rsp.status_code, 302)
+        self.assertEqual(headers['location'], self.admin_url)
 
     def test_login_success_sets_session(self):
-        rsp = self.c.post(self.login_url,
-                          data={'username': self.username,
-                                'password': self.password})
+        self.c.post(self.login_url,
+                    data={'username': self.username,
+                          'passwo': self.password})
 
         with self.c.session_transaction() as sess:
             self.assertTrue('user_id' in sess)
-            self.assertEqual(sess['user_id'], self.user['id'])
+            self.assertEqual(sess['user_id'], self.user.id)
 
     def test_login_failure_bad_password_redirect(self):
         rsp = self.c.post(self.login_url,
                           data={'username': self.username,
-                                'password': self.password})
+                                'passwo': 'bad_passwors'})
         headers = rsp.headers
 
-        self.assertEqual(rsp.status_code, 301)
+        self.assertEqual(rsp.status_code, 302)
         self.assertEqual(headers['location'], self.login_url)
 
     def test_login_failure_bad_user_redirect(self):
         rsp = self.c.post(self.login_url,
-                          data={'username': self.username,
-                                'password': self.password})
+                          data={'username': 'bad_user',
+                                'passwo': self.password})
         headers = rsp.headers
 
-        self.assertEqual(rsp.status_code, 301)
+        self.assertEqual(rsp.status_code, 302)
         self.assertEqual(headers['location'], self.login_url)
 
     def test_logout_clears_session(self):
-        rsp = self.c.get(self.logout_url)
+        self.c.get(self.logout_url)
 
         with self.c.session_transaction() as sess:
             self.assertTrue('user_id' not in sess)
@@ -146,7 +150,7 @@ class AdminTest(t.TestCase):
             Albums.id).first()
         album_url = url_for('admin_edit_album', id=album_db.id)
 
-        self.assertEqual(rsp.status_code, 301)
+        self.assertEqual(rsp.status_code, 302)
         self.assertEqual(rsp.headers.get('location'), album_url)
         self.assertEqual(album_db.title, album['title'])
 

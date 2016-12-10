@@ -1,5 +1,4 @@
 import bcrypt
-from flask import session
 from sqlalchemy.orm.exc import NoResultFound
 
 from photolog.models import Users
