@@ -1,0 +1,30 @@
+{% extends "admin/base.html" %}
+{% block body %}
+<table>
+  <thead>
+    <tr>
+      <td>Actions</td>
+      <td>Name</td>
+      <td>Description</td>
+      <td>Status</td>
+      <td>User</td>
+      <td>Created at</td>
+    </tr>
+  </thead>
+  <tbody>
+    {% for album in albums %}
+      <tr>
+        <td>
+          <a href="{{ url_for('futon_edit_album', album_id=album.id) }}">edit</a>
+          <a href="{{ url_for('futon_delete_album', album_id=album.id) }}">delete</a>
+        </td>
+        <td>{{ album.name }}</td>
+        <td>{{ album.description }}</td>
+        <td>{{ album.status }}</td>
+        <td>{{ album.user.username }}</td>
+        <td>{{ album.inserted_at }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock body %}

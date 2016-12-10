@@ -1,0 +1,16 @@
+<form method="POST" action="{{ action }}" enctype="multipart/form-data">
+  {{ form.csrf_token }}
+  {{ album_form.name.label }}
+  {{ album_form.name(size=64) }}
+
+  {{ album_form.description.label }}
+  {{ album_form.description(size=128) }}
+
+  {{ album_form.status.label }}
+  {{ album_form.status() }}
+
+  {{ album_form.photos.label }}
+  {{ album_form.photos() }}
+
+  <input type="submit" value="Save" >
+</form>

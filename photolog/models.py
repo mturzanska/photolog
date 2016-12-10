@@ -19,7 +19,7 @@ class Users(db.Model):
                            nullable=True,
                            onupdate=timestamp)
 
-    albums = db.relationship('Albums')
+    albums = db.relationship('Albums', backref='user', lazy='dynamic')
 
 
 class Albums(db.Model):
@@ -29,7 +29,6 @@ class Albums(db.Model):
     description = db.Column(db.Text)
     status = db.Column(db.Integer, default=0)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
-    user_id = db.Column(db.Integer, db.ForeignKey(Users.id), index=True)
     inserted_at = db.Column(db.DateTime,
                             nullable=False,
                             default=timestamp)
@@ -37,7 +36,9 @@ class Albums(db.Model):
                            nullable=True,
                            onupdate=timestamp)
 
-    photos = db.relationship('Photos')
+    photos = db.relationship('Photos', backref='album', lazy='dynamic')
+
+    statuses = ((0, 'Unpublished',), (1, 'Published',))
 
 
 class Photos(db.Model):
@@ -47,7 +48,6 @@ class Photos(db.Model):
     file_name = db.Column(db.Text)
     description = db.Column(db.Text)
     album_id = db.Column(db.Integer, db.ForeignKey('albums.id'), index=True)
-    album_id = db.Column(db.Integer, db.ForeignKey(Albums.id), index=True)
     inserted_at = db.Column(db.DateTime,
                             nullable=False,
                             default=timestamp)

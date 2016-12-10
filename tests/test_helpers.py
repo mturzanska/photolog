@@ -1,5 +1,8 @@
+import unittest as t
+
 from photolog.models import Users, Albums, Photos
 from photolog.auth import hash_password
+from photolog import db
 
 
 class ModelHelper():
@@ -14,14 +17,26 @@ class ModelHelper():
             self.session.commit()
         return user
 
-    def create_album(self, user, name='album'):
-        album = Albums(name=name, user=user)
+    def create_album(self, user, name='album', desc='Album Desc', status=0):
+        album = Albums(name=name, description=desc, status=status)
         self.session.add(album)
         self.session.commit()
+        user.albums.append(album)
         return album
 
     def create_photo(self, album, name='photo'):
         photo = Photos(name=name, album=album)
         self.session.add(photo)
         self.session.commit()
+        album.photos.append(photo)
         return photo
+
+
+class PhotologTestCase(t.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.model_helper = ModelHelper(db.session)
+
+
+def bytes_encode(msg):
+    return bytes(msg, encoding='utf-8')
