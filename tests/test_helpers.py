@@ -6,11 +6,12 @@ class ModelHelper():
     def __init__(self, db_session):
         self.session = db_session
 
-    def create_user(self, username='bob', password='123123123'):
+    def create_user(self, username='bob', password='123123123', add=True):
         password_hash = hash_password(password)
         user = Users(username=username, password_hash=password_hash)
-        self.session.add(user)
-        self.session.commit()
+        if add:
+            self.session.add(user)
+            self.session.commit()
         return user
 
     def create_album(self, user, name='album'):
