@@ -25,19 +25,21 @@ class AuthTest(t.TestCase):
 
     def test_authenticate_user_success(self):
         try:
-            user = auth.authenticate_user(db.session, self.username,
-                                          self.password)
+            user = auth.authenticate_user(self.user, self.password)
         except auth.AuthError:
             self.failed('failed to authenticate user')
         self.assertEqual(user, self.user)
 
     def test_authenticate_user_doesnt_exist(self):
         with self.assertRaises(auth.AuthError):
-            auth.authenticate_user(db.session, 'mallory', self.password)
+            bad_user = self.model_helper.create_user(
+                username='mallory', add=False
+            )
+            auth.authenticate_user(bad_user, self.password)
 
     def test_authenticate_user_bad_password(self):
         with self.assertRaises(auth.AuthError):
-            auth.authenticate_user(db.session, self.username, 'bob123')
+            auth.authenticate_user(self.user, 'bob123')
 
 
 class SessionViewTest(t.TestCase):
