@@ -36,10 +36,7 @@ def login():
                              .one()
         except NoResultFound:
             hash_password('dummy password')
-            try:
-                raise AuthError('User not found')
-            except AuthError:
-                return redirect(url_for('login'))
+            return redirect(url_for('login'))
         try:
             authenticate_user(user, form.passwo.data)
         except AuthError:
