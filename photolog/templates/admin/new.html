@@ -1,0 +1,10 @@
+{% extends "admin/base.html" %}
+{% block body %}
+<h2>New Album</h2>
+
+{% with action=url_for('futon_new_album'), form=album_form %}
+  {% include 'admin/form.html' %}
+{% endwith %}
+
+<a href="{{ url_for('futon') }}">Back</a>
+{% endblock body %}
