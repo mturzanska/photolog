@@ -1,14 +1,15 @@
 from functools import wraps
-
 from os.path import join as path_join
+
 from flask import render_template, redirect, url_for, flash, request, session
 from flask.views import MethodView
 from sqlalchemy.orm.exc import NoResultFound
 
 from photolog import photolog, db
 from photolog.auth import authenticate_user, AuthError, hash_password
+from photolog.config import ITEMS_PER_PAGE
 from photolog.forms import LoginForm, AlbumForm
-from photolog.models import Albums, Photos
+from photolog.models import Albums, Users, Photos
 
 
 def login_required(f):
@@ -21,23 +22,11 @@ def login_required(f):
     return decorate_view
 
 
-@photolog.route('/')
-def home():
-    photos = [
-        {
-            'created_at': 'created at some time ago',
-            'filename': '/static/photolog_test.png',
-         },
-        {
-            'created_at': 'created at some time ago',
-            'filename': '/static/photolog_test_2.png',
-         },
-        {
-            'created_at': 'created at some time ago',
-            'filename': '/static/photolog_test_3.jpg',
-         },
-    ]
-    return render_template('home.html', title='photolog', photos=photos)
+@photolog.route('/', methods=['GET'])
+@photolog.route('/<int:page>', methods=['GET'])
+def index(page=1):
+    albums = Albums.query.paginate(page, ITEMS_PER_PAGE, False).items
+    return render_template('index.html', title='photolog', albums=albums)
 
 
 @photolog.route('/in', methods=['GET', 'POST'])

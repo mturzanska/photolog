@@ -6,3 +6,4 @@ SERVER_NAME = os.environ.get('SERVER_NAME')
 WTF_CSRF_SECRET_KEY = 'not_so_secret'
 SECRET_KEY = 'not_so_secter_either'
 UPLOAD_FOLDER = 'uploads/'
+ITEMS_PER_PAGE = 10
