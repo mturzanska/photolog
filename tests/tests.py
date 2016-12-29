@@ -129,11 +129,11 @@ class IndexTest(t.TestCase):
             self.model_helper.create_album(user, name=name)
 
         page_1 = self.c.get(self.index_url_page_1)
-        self.assertTrue('album_10' in str(page_1.data))
-        self.assertTrue('album_11' not in str(page_1.data))
+        self.assertIn('album_10', str(page_1.data))
+        self.assertNotIn('album_11', str(page_1.data))
         page_2 = self.c.get(self.index_url_page_2)
-        self.assertTrue('album_10' not in str(page_2.data))
-        self.assertTrue('album_11' in str(page_2.data))
+        self.assertNotIn('album_10', str(page_2.data))
+        self.assertIn('album_11', str(page_2.data))
 
 if __name__ == '__main__':
     t.main()
