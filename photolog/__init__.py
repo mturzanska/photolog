@@ -10,3 +10,4 @@ csrf.init_app(photolog)
 db = SQLAlchemy(photolog)
 
 from photolog import models, views
+db.create_all()

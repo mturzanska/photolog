@@ -1,0 +1,14 @@
+<html>
+  <head>
+      <title> {{title}} </title>
+  </head>
+  <body>
+      {% for album in albums %}
+      <div><p>{{ album.name }}</p></div>
+        {% for photo in album.photos %}
+        <div><p>{{ photo.created_at }}</p></div>
+        <img src="{{ photo.filename }}">
+        {% endfor %}
+      {% endfor %}
+  </body>
+</html>

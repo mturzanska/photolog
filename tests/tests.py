@@ -108,6 +108,32 @@ class SessionViewTest(t.TestCase):
         with self.c.session_transaction() as sess:
             self.assertTrue('user_id' not in sess)
 
+class IndexTest(t.TestCase):
+
+    def setUp(self):
+        app.config['TESTING'] = True
+        db.create_all()
+        self.model_helper = ModelHelper(db.session)
+        with app.app_context():
+            self.index_url_page_1 = url_for('index')
+            self.index_url_page_2 = url_for('index', page=2)
+            self.c = app.test_client()
+
+    def tearDown(self):
+        db.drop_all()
+
+    def test_pagination(self):
+        user = self.model_helper.create_user()
+        for id in range(1, 20):
+            name = 'album_{0}'.format(id)
+            self.model_helper.create_album(user, name=name)
+
+        page_1 = self.c.get(self.index_url_page_1)
+        self.assertIn('album_10', str(page_1.data))
+        self.assertNotIn('album_11', str(page_1.data))
+        page_2 = self.c.get(self.index_url_page_2)
+        self.assertNotIn('album_10', str(page_2.data))
+        self.assertIn('album_11', str(page_2.data))
 
 if __name__ == '__main__':
     t.main()
