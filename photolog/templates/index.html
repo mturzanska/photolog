@@ -1,14 +1,38 @@
-<html>
-  <head>
-      <title> {{title}} </title>
-  </head>
-  <body>
-      {% for album in albums %}
-      <div><p>{{ album.name }}</p></div>
-        {% for photo in album.photos %}
-        <div><p>{{ photo.created_at }}</p></div>
-        <img src="{{ photo.filename }}">
-        {% endfor %}
-      {% endfor %}
-  </body>
-</html>
+{% extends "base.html" %}
+
+{% block body %}
+<nav>
+  <div class="about-box">
+    <p>Maintained by: <a href="http://mattscodecave.com">Matt</a> &amp; Trznska</p>
+  </div>
+  <a href="javascript:;" class="about">About</a>
+  <div class="paginate-me">
+    pagination
+  </div>
+</nav>
+
+<header>
+  <h1>
+    <a href="/">Photolog</a>
+  </h1>
+</header>
+
+{% for album in albums %}
+<div class="album">
+  <div class="album-meta">
+    <div class="date">
+      <p>{{ album.inserted_at }}</p>
+    </div>
+  </div>
+
+  <div class="photos">
+    {% for photo in album.photos %}
+    <div class="photo">
+      <img src="{{ photo.filename }}" />
+      <div class="photo-title">{{ photo.name }}</div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endfor %}
+{% endblock body %}
