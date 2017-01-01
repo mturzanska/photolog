@@ -1,0 +1,57 @@
+.album {
+  margin-bottom: 50px;
+
+  .album-meta {
+    h4, p {
+      font-family: $font;
+    }
+
+    h4 {
+      font-size: 40px;
+      margin-bottom: 0px;
+      font-weight: 300;
+      color: $col-dark-gray;
+    }
+
+    p {
+      font-size: 18px;
+      display: inline-block;
+    }
+  }
+
+  .photo {
+    margin: 0;
+    padding: 0;
+    width: (100% / 3) - 0.8%;
+    margin-bottom: 10px;
+
+    img {
+      width: 100%;
+      transition: all 0.3s ease-in-out;
+    }
+
+    .photo-title {
+      display: none;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: $col-dark-white;
+      color: black;
+      font-family: $font;
+      padding: 5px 8px;
+      font-size: 17px;
+      transition: background 0.3s ease-in-out;
+    }
+
+    &:hover {
+      img {
+        cursor: pointer;
+      }
+
+      .photo-title {
+        background-color: $col-dark-white;
+      }
+    }
+  }
+}

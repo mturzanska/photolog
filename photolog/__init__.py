@@ -3,7 +3,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CsrfProtect
 
 
-photolog = Flask(__name__)
+photolog = Flask(__name__, static_folder='../public')
 photolog.config.from_object('photolog.config')
 csrf = CsrfProtect()
 csrf.init_app(photolog)
