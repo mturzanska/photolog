@@ -1,3 +1,5 @@
+import math
+
 from flask import render_template, redirect, url_for, flash, request, session
 from flask.views import MethodView
 from sqlalchemy.orm.exc import NoResultFound
@@ -20,8 +22,8 @@ def index(page=1):
         'per_page': ITEMS_PER_PAGE,
         'total_albums': Albums.query.count()
     }
-    pagination['total_pages'] = int(pagination['total_albums'] / pagination[
-        'per_page']) + 1
+    pagination['total_pages'] = math.ceil(pagination['total_albums'] /
+                                          pagination['per_page'])
 
     albums = Albums.query.paginate(page, ITEMS_PER_PAGE, False).items
     return render_template('index.html', albums=albums, pagination=pagination)
