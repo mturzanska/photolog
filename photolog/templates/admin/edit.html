@@ -7,24 +7,44 @@
 {% endwith %}
 
 <form method="POST" action="{{ url_for('futon_delete_album', album_id=album.id) }}">
-{% for photo in album.photos.all() %}
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-    <input type="hidden" name="photo_{{ loop.index0 }}_id" value="{{ photo.id }}">
-    <div>
-        <label for="photo_{{ loop.index0 }}_delete">Delete?</label>
-        <input name="photo_{{ loop.index0 }}" type="checkbox">
-    </div>
+    <table>
+        <thead>
+            <td>Delete</td>
+            <td>Name</td>
+            <td>Description</td>
+            <td>Filename</td>
+            <td>Image</td>
+        </thead>
+        <tbody>
+        {% for photo in album.photos.all() %}
+            <tr>
+                <input type="hidden" name="photo_{{ loop.index0 }}_id" value="{{ photo.id }}">
+                <td>
+                    <label for="photo_{{ loop.index0 }}_delete">Delete?</label>
+                    <input name="photo_{{ loop.index0 }}" type="checkbox">
+                </td>
 
-    <div>
-        <label for="photo_{{ loop.index0 }}_name">Name</label>
-        <input name="photo_{{ loop.index0 }}_name" type="text" value="{{ photo.description }}">
-    </div>
+                <td>
+                    <label for="photo_{{ loop.index0 }}_name">Name</label>
+                    <input name="photo_{{ loop.index0 }}_name" type="text" value="{{ photo.description }}">
+                </td>
 
-    <div>
-        <label for="photo_{{ loop.index0 }}_desc">Name</label>
-        <input name="photo_{{ loop.index0 }}_desc" type="text" value="{{ photo.name }}">
-    </div>
-{% endfor %}
+                <td>
+                    <label for="photo_{{ loop.index0 }}_desc">Description</label>
+                    <input name="photo_{{ loop.index0 }}_desc" type="text" value="{{ photo.name }}">
+                </td>
+                <td>
+                    {{ photo.file_name }}
+                </td>
+                <td>
+                    <img src="{{ url_for('uploaded_file', filename=photo.file_name) }}" />
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+<input type="submit" value="Update">
 </form>
 
 <a href="{{ url_for('futon') }}">Back</a>

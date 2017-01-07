@@ -7,7 +7,19 @@
   </div>
   <a href="javascript:;" class="about">About</a>
   <div class="paginate-me">
-    pagination
+      {% if pagination.total_pages > 1 %}
+        {% if pagination.current_page != 1 %}
+            <a href="/?page=1">&lt;&lt;</a>
+            <a href="/?page={{ pagination.current_page - 1 }}">&lt;</a>
+        {% endif %}
+
+        <p>Page {{ pagination.current_page }} of {{ pagination.total_pages }}</p>
+
+        {% if pagination.current_page != pagination.total_pages %}
+            <a href="/?page={{ pagination.current_page + 1}}">&gt;</a>
+            <a href="/?page={{ pagination.total_pages }}">&gt;&gt;</a>
+        {% endif %}
+      {% endif %}
   </div>
 </nav>
 
@@ -21,7 +33,7 @@
 <div class="album">
   <div class="album-meta">
     <div class="date">
-      <p>{{ album.inserted_at }}</p>
+      <p>{{ album.inserted_at|nice_datetime }}</p>
     </div>
   </div>
 
