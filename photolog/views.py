@@ -1,5 +1,4 @@
 from functools import wraps
-from os.path import join as path_join
 
 from flask import render_template, redirect, url_for, flash, request, session
 from flask.views import MethodView
@@ -10,6 +9,7 @@ from photolog.auth import authenticate_user, AuthError, hash_password
 from photolog.config import ITEMS_PER_PAGE
 from photolog.forms import LoginForm, AlbumForm
 from photolog.models import Albums, Users, Photos
+from photolog.pics import save_to_album
 
 
 def login_required(f):
@@ -61,18 +61,6 @@ def futon():
     return render_template('admin/index.html', albums=albums)
 
 
-def process_file(dest, file_storage):
-    file_storage.save(path_join(dest, file_storage.filename))
-
-
-def save_images_to_album(img_file_storages, album):
-    for img in img_file_storages:
-        photo = Photos(file_name=img.filename, album_id=album.id)
-        album.photos.append(photo)
-        db.session.add(photo)
-        process_file(photolog.config['UPLOAD_FOLDER'], img)
-
-
 class FutonEditAlbum(MethodView):
     def get(self, album_id):
         album = Albums.query.filter_by(id=album_id).first_or_404()
@@ -87,7 +75,7 @@ class FutonEditAlbum(MethodView):
 
         if album_form.validate_on_submit():
             album_form.populate_obj(album)
-            save_images_to_album(request.files.getlist('photos[]'), album)
+            save_to_album(request.files.getlist('photos[]'), album)
 
             db.session.commit()
             return redirect(url_for('futon_edit_album', album_id=album.id))
@@ -115,7 +103,7 @@ class FutonNewAlbum(MethodView):
             # tmp
             album.user_id = 1
             db.session.add(album)
-            save_images_to_album(request.files.getlist('photos[]'), album)
+            save_to_album(request.files.getlist('photos[]'), album)
 
             db.session.commit()
             return redirect(url_for('futon_edit_album', album_id=album.id))
