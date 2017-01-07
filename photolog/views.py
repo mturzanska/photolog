@@ -1,6 +1,9 @@
+import math
+
 from flask import render_template, redirect, url_for, flash, request, session
 from flask.views import MethodView
 from sqlalchemy.orm.exc import NoResultFound
+from werkzeug import SharedDataMiddleware
 
 from photolog import photolog, db
 from photolog.auth import (authenticate_user, AuthError, hash_password,
@@ -14,8 +17,16 @@ from photolog.pics import save_to_album
 @photolog.route('/', methods=['GET'])
 @photolog.route('/<int:page>', methods=['GET'])
 def index(page=1):
+    pagination = {
+        'current_page': page,
+        'per_page': ITEMS_PER_PAGE,
+        'total_albums': Albums.query.count()
+    }
+    pagination['total_pages'] = math.ceil(pagination['total_albums'] /
+                                          pagination['per_page'])
+
     albums = Albums.query.paginate(page, ITEMS_PER_PAGE, False).items
-    return render_template('index.html', title='photolog', albums=albums)
+    return render_template('index.html', albums=albums, pagination=pagination)
 
 
 @photolog.route('/in', methods=['GET', 'POST'])
@@ -65,8 +76,9 @@ class FutonEditAlbum(MethodView):
         album = Albums.query.filter_by(id=album_id).first_or_404()
 
         if album_form.validate_on_submit():
+            del album_form.photos
             album_form.populate_obj(album)
-            save_to_album(request.files.getlist('photos[]'), album)
+            save_to_album(request.files.getlist('photos'), album)
 
             db.session.commit()
             return redirect(url_for('futon_edit_album', album_id=album.id))
@@ -91,10 +103,13 @@ class FutonNewAlbum(MethodView):
 
         if album_form.validate_on_submit():
             album = Albums()
+            # Funny. If you allow photos: FileStorage() in the form
+            # populate_obj will get stuck and eat all your ram.
+            del album_form.photos
             album_form.populate_obj(album)
             album.user_id = session.get('user_id')
             db.session.add(album)
-            save_to_album(request.files.getlist('photos[]'), album)
+            save_to_album(request.files.getlist('photos'), album)
 
             db.session.commit()
             return redirect(url_for('futon_edit_album', album_id=album.id))
@@ -131,3 +146,9 @@ def futon_delete_album(album_id):
 
     flash('Album {0} deleted!'.format(album.name), 'success')
     return redirect(url_for('futon'))
+
+
+photolog.add_url_rule('/uploads/<filename>', 'uploaded_file',
+                      build_only=True)
+photolog.wsgi_app = SharedDataMiddleware(photolog.wsgi_app, {
+    '/uploads': photolog.config['UPLOAD_FOLDER']})
