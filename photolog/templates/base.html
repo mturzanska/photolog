@@ -12,6 +12,14 @@
   </head>
 
   <body id="top">
+    {% if session.user_id %}
+    <div>
+      <h3>Hi, photologger!</h3>
+      <a href="{{ url_for('logout') }}">Log out</a>
+      <a href="{{ url_for('futon') }}">Futon</a>
+      <a href="{{ url_for('futon_new_album') }}">New Album</a>
+    </div>
+    {% endif %}
     {% with messages = get_flashed_messages(with_categories=True) %}
       {% if messages %}
         {% for category, message in messages %}

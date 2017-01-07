@@ -1,25 +1,14 @@
-from functools import wraps
-
 from flask import render_template, redirect, url_for, flash, request, session
 from flask.views import MethodView
 from sqlalchemy.orm.exc import NoResultFound
 
 from photolog import photolog, db
-from photolog.auth import authenticate_user, AuthError, hash_password
+from photolog.auth import (authenticate_user, AuthError, hash_password,
+                           login_required)
 from photolog.config import ITEMS_PER_PAGE
 from photolog.forms import LoginForm, AlbumForm
 from photolog.models import Albums, Users, Photos
 from photolog.pics import save_to_album
-
-
-def login_required(f):
-    @wraps(f)
-    def decorate_view(*args, **kwargs):
-        if session.get('user_id', None) is None:
-            flash('Please log in', 'error')
-            return redirect(url_for('futon'))
-        return f(*args, **kwargs)
-    return decorate_view
 
 
 @photolog.route('/', methods=['GET'])
@@ -50,12 +39,14 @@ def login():
 
 
 @photolog.route('/out', methods=['GET'])
+@login_required
 def logout():
     session.clear()
     return render_template('logout.html', title='OUT')
 
 
 @photolog.route('/futon')
+@login_required
 def futon():
     albums = Albums.query.all()
     return render_template('admin/index.html', albums=albums)
@@ -85,8 +76,9 @@ class FutonEditAlbum(MethodView):
                                album_form=album_form)
 
 
-photolog.add_url_rule('/futon/<int:album_id>/edit',
-                      view_func=FutonEditAlbum.as_view('futon_edit_album'))
+photolog.add_url_rule(
+    '/futon/<int:album_id>/edit',
+    view_func=login_required(FutonEditAlbum.as_view('futon_edit_album')))
 
 
 class FutonNewAlbum(MethodView):
@@ -100,8 +92,7 @@ class FutonNewAlbum(MethodView):
         if album_form.validate_on_submit():
             album = Albums()
             album_form.populate_obj(album)
-            # tmp
-            album.user_id = 1
+            album.user_id = session.get('user_id')
             db.session.add(album)
             save_to_album(request.files.getlist('photos[]'), album)
 
@@ -111,11 +102,13 @@ class FutonNewAlbum(MethodView):
         return render_template('admin/new.html', album_form=album_form)
 
 
-photolog.add_url_rule('/futon/new',
-                      view_func=FutonNewAlbum.as_view('futon_new_album'))
+photolog.add_url_rule(
+    '/futon/new',
+    view_func=login_required(FutonNewAlbum.as_view('futon_new_album')))
 
 
 @photolog.route('/futon/<int:album_id>/update-photos', methods=['POST'])
+@login_required
 def futon_update_photos(album_id):
     photo_updates = request.get_json().get('photo_updates', [])
     for update in photo_updates:
@@ -129,7 +122,8 @@ def futon_update_photos(album_id):
     return redirect(url_for('futon_edit_album', album_id=album_id))
 
 
-@photolog.route('/futon/<int:album_id>/delete', methods=['POST'])
+@photolog.route('/futon/<int:album_id>/delete', methods=['GET'])
+@login_required
 def futon_delete_album(album_id):
     album = Albums.query.filter_by(id=album_id).first_or_404()
     db.session.delete(album)

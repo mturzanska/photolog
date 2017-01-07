@@ -1,5 +1,5 @@
 from flask_wtf import Form
-from wtforms import StringField, SelectField
+from wtforms import StringField, SelectField, PasswordField
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from wtforms.validators import DataRequired
@@ -9,7 +9,7 @@ from photolog.models import Albums
 
 class LoginForm(Form):
     username = StringField('username', validators=[DataRequired()])
-    passwo = StringField('passwo', validators=[DataRequired()])
+    passwo = PasswordField('passwo', validators=[DataRequired()])
 
 
 class AlbumForm(FlaskForm):
